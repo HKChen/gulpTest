@@ -4,7 +4,7 @@
  * @package     gulpTest
  * @author      HK Chen
  * @copyright   Copyright (c) HK Chen (http://hkchen.github.io)
- * @link         https://github.com/hkchen/gulpTest
+ * @link        https://github.com/hkchen/gulpTest
  */
 
 var gulp = require('gulp');
