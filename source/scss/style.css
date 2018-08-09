@@ -1,0 +1,9 @@
+body {
+  color: #FA0E0E;
+}
+
+.card {
+  -webkit-transform: rotate(120deg);
+          transform: rotate(120deg);
+}
+/*# sourceMappingURL=style.css.map */

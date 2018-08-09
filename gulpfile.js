@@ -12,6 +12,22 @@ var $ = require('gulp-load-plugins')();
 var autoprefixer = require('autoprefixer');
 var mainBowerFiles = require('main-bower-files');
 var browserSync = require('browser-sync').create();
+var minimist = require('minimist');
+
+var envOptions = {
+    string: 'env',
+    default: { env: 'develop'}
+}
+var options = minimist(process.argv.slice(2), envOptions)
+console.log(options)
+
+/**
+ * Remove Temp & Public Folder
+ */
+gulp.task('clean', function () {
+    return gulp.src(['./temp', './public'], { read: false })
+        .pipe($.clean());
+});
 
 /**
  * Copy Files & Folders
@@ -41,7 +57,7 @@ gulp.task('sass', function() {
         .pipe($.sourcemaps.init())
         .pipe($.sass().on('error', $.sass.logError))
         .pipe($.postcss(plugins))
-        .pipe($.minifyCss())
+        .pipe($.if(options.env === 'production', $.cleanCss()))
         .pipe($.sourcemaps.write('.'))
         .pipe(gulp.dest('./public/css'))
         .pipe(browserSync.stream())
@@ -55,12 +71,12 @@ gulp.task('babel', () => {
             presets: ['env']
         }))
         .pipe($.concat('all.js'))
-        .pipe($.uglify({
+        .pipe($.if(options.env === 'production',$.uglify({
             //  Remove console log
             compress: {
                 drop_console: true
             }
-        }))
+        })))
         .pipe($.sourcemaps.write('.'))
         .pipe(gulp.dest('./public/js'))
         .pipe(browserSync.stream())
@@ -77,14 +93,14 @@ gulp.task('bower', function () {
             }
         }
     }))
-        .pipe(gulp.dest('temp/vendors'));
+        .pipe(gulp.dest('./temp/vendors'));
         cb(err);
 });
 
 gulp.task('vendorJs', ['bower'], function() {
-    return gulp.src('temp/vendors/**/**.js')
+    return gulp.src('./temp/vendors/**/**.js')
         .pipe($.concat('venders.js'))
-        .pipe($.uglify())
+        .pipe($.if(options.env === 'production',$.uglify()))
         .pipe(gulp.dest('./public/js'))
 });
 
@@ -100,6 +116,15 @@ gulp.task('browser-sync', function() {
 });
 
 /**
+ * Compress Image
+ */
+gulp.task('image-min', () =>
+    gulp.src('./source/images/*')
+        .pipe($.if(options.env === 'production',$.imagemin()))
+        .pipe(gulp.dest('./public/images'))
+);
+
+/**
  * Watching Files
  */
 gulp.task('watch', function () {
@@ -108,4 +133,12 @@ gulp.task('watch', function () {
     gulp.watch('./source/js/**/*.js', ['babel']);
 });
 
+/**
+ * Build Production
+ */
+gulp.task('build', $.sequence('clean', 'jade', 'sass', 'babel', 'vendorJs', 'image-min'))
+
+/**
+ * Develop
+ */
 gulp.task('default', ['jade', 'sass', 'babel', 'vendorJs', 'browser-sync', 'watch']);
