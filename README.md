@@ -13,3 +13,11 @@ sudo npm install -g gulp
 ~~~
 sudo npm install gulp --save
 ~~~
+
+## Plug-in Install
+~~~
+sudo npm install
+sudo bower insatll
+~~~
+
+
