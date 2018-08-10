@@ -134,11 +134,19 @@ gulp.task('watch', function () {
 });
 
 /**
- * Build Production
+ * Deploy Github Page
+ */
+gulp.task('deploy', function () {
+    return gulp.src('./public/**/*')
+        .pipe($.ghPages());
+});
+
+/**
+ * Build Production Task
  */
 gulp.task('build', $.sequence('clean', 'jade', 'sass', 'babel', 'vendorJs', 'image-min'))
 
 /**
- * Develop
+ * Develop Task
  */
 gulp.task('default', ['jade', 'sass', 'babel', 'vendorJs', 'browser-sync', 'watch']);
